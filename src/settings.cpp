@@ -77,6 +77,15 @@ void BlurSettings::read()
     general.rimWidth = std::clamp(BlurConfig::rimWidth(), 10, 40) / 10.0f;
     general.rimAdaptToRefraction = BlurConfig::rimAdaptToRefraction();
     general.rimAdaptMultiplier = std::clamp(BlurConfig::rimAdaptMultiplier(), 0, 20) / 10.0f;
+    general.cursorRim = BlurConfig::cursorRim();
+    general.cursorRimStrength = std::clamp(BlurConfig::cursorRimStrength(), 0, 100) / 100.0f;
+    general.cursorRimRadius = std::clamp(BlurConfig::cursorRimRadius(), 20, 400);
+    general.cursorRimThickness = std::clamp(BlurConfig::cursorRimThickness(), 30, 150) / 100.0f;
+    general.squircleCorners = BlurConfig::squircleCorners();
+    general.squircleExponent = std::clamp(BlurConfig::squircleExponent(), 21, 100) / 10.0f;
+    general.edgeAA = BlurConfig::edgeAA();
+    general.widgetBorder = BlurConfig::widgetBorder();
+    general.widgetBorderStrength = std::clamp(BlurConfig::widgetBorderStrength(), 0, 100) / 100.0f;
     general.edgeLighting = BlurConfig::edgeLighting();
     general.edgeLightingDock = BlurConfig::edgeLightingDock();
     general.edgeLightingTooltip = BlurConfig::edgeLightingTooltip();
@@ -85,6 +94,7 @@ void BlurSettings::read()
     general.excludeTooltips = BlurConfig::excludeTooltips();
     general.excludeMenus = BlurConfig::excludeMenus();
     general.excludeOSD = BlurConfig::excludeOSD();
+    general.fixTransformedWindows = BlurConfig::fixTransformedWindows();
 
     forceBlur.windowClasses = parseWindowClasses(BlurConfig::windowClasses());
     forceBlur.windowClassMatchingMode = BlurConfig::blurMatching() ? WindowClassMatchingMode::Whitelist : WindowClassMatchingMode::Blacklist;
@@ -96,6 +106,9 @@ void BlurSettings::read()
     roundedCorners.windowBottomRadius = BlurConfig::bottomCornerRadius();
     roundedCorners.menuRadius = BlurConfig::menuCornerRadius();
     roundedCorners.dockRadius = BlurConfig::dockCornerRadius();
+    roundedCorners.separateNotificationCorners = BlurConfig::separateNotificationCorners();
+    roundedCorners.notificationTopRadius = BlurConfig::notificationTopCornerRadius();
+    roundedCorners.notificationBottomRadius = BlurConfig::notificationBottomCornerRadius();
     roundedCorners.useDeclaredCornerRadius = BlurConfig::useDeclaredCornerRadius();
     roundedCorners.ignoreContentBlurRegion = BlurConfig::ignoreContentBlurRegion();
     roundedCorners.roundMaximized = BlurConfig::roundCornersOfMaximizedWindows();

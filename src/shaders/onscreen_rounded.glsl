@@ -23,7 +23,7 @@ void main(void)
     float dist = roundedRectangleDist(position, halfBlurSize, cornerRadius);
 
     vec4 sum = vec4(0);
-    if (dist <= 0.0) {
+    if (dist <= (edgeAA == 1 ? 1.0 : 0.0)) {
         sum = texture(texUnit, uv + vec2(-halfpixel.x * 2.0, 0.0) * offset);
         sum += texture(texUnit, uv + vec2(-halfpixel.x, halfpixel.y) * offset) * 2.0;
         sum += texture(texUnit, uv + vec2(0.0, halfpixel.y * 2.0) * offset);
@@ -37,9 +37,15 @@ void main(void)
 
     sum = glass(sum, cornerRadius);
 
-    float f = sdfRoundedBox(vertex, box.xy, box.zw, cornerRadius);
-    float df = fwidth(f);
-    sum *= 1.0 - clamp(0.5 + f / df, 0.0, 1.0);
+    // vertex is y-down; roundedRectangleDist expects y-up
+    float f = roundedRectangleDist(vec2(vertex.x - box.x, -(vertex.y - box.y)), box.zw, cornerRadius);
+    if (edgeAA == 1) {
+        // Widget-style mask: 1px smoothstep centered on the true edge, on a unit-gradient distance
+        sum *= 1.0 - smoothstep(-0.5, 0.5, f);
+    } else {
+        float df = fwidth(f);
+        sum *= 1.0 - clamp(0.5 + f / df, 0.0, 1.0);
+    }
 
     if (useOklabSaturation == 1) {
         sum.rgb = oklabSaturate(sum.rgb, saturation);

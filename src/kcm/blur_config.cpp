@@ -42,6 +42,12 @@ BlurEffectConfig::BlurEffectConfig(QObject *parent, const KPluginMetaData &data)
         ui.kcfg_MenuCornerRadius->setEnabled(customCornerRadius);
         ui.labelDockCornerRadius->setEnabled(customCornerRadius);
         ui.kcfg_DockCornerRadius->setEnabled(customCornerRadius);
+        ui.kcfg_SeparateNotificationCorners->setEnabled(customCornerRadius);
+        const bool notificationCorners = customCornerRadius && ui.kcfg_SeparateNotificationCorners->isChecked();
+        ui.labelNotificationTopCornerRadius->setEnabled(notificationCorners);
+        ui.kcfg_NotificationTopCornerRadius->setEnabled(notificationCorners);
+        ui.labelNotificationBottomCornerRadius->setEnabled(notificationCorners);
+        ui.kcfg_NotificationBottomCornerRadius->setEnabled(notificationCorners);
         ui.kcfg_RoundCornersOfMaximizedWindows->setEnabled(customCornerRadius);
         ui.kcfg_DynamicCorners->setEnabled(customCornerRadius);
         ui.kcfg_DynamicCornersExcludeWindows->setEnabled(dynamicCorners);
@@ -52,6 +58,7 @@ BlurEffectConfig::BlurEffectConfig(QObject *parent, const KPluginMetaData &data)
     updateRoundedCornerControls();
     connect(ui.kcfg_UseDeclaredCornerRadius, &QCheckBox::toggled, this, updateRoundedCornerControls);
     connect(ui.kcfg_DynamicCorners, &QCheckBox::toggled, this, updateRoundedCornerControls);
+    connect(ui.kcfg_SeparateNotificationCorners, &QCheckBox::toggled, this, updateRoundedCornerControls);
 
     auto updateBodyRefractionControls = [this]() {
         const bool physicallyBased = ui.kcfg_PhysicallyBasedRefraction->isChecked();

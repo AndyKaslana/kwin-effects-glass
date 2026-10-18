@@ -44,6 +44,15 @@ struct GeneralSettings
     float rimWidth;
     bool rimAdaptToRefraction;
     float rimAdaptMultiplier;
+    bool cursorRim;
+    float cursorRimStrength;
+    float cursorRimRadius;
+    float cursorRimThickness;
+    bool squircleCorners;
+    float squircleExponent;
+    bool edgeAA;
+    bool widgetBorder;
+    float widgetBorderStrength;
     bool edgeLighting;
     bool edgeLightingDock;
     bool edgeLightingTooltip;
@@ -52,6 +61,7 @@ struct GeneralSettings
     bool excludeTooltips;
     bool excludeMenus;
     bool excludeOSD;
+    bool fixTransformedWindows;
 };
 
 struct ForceBlurSettings
@@ -69,6 +79,9 @@ struct RoundedCornersSettings
     float windowBottomRadius;
     float menuRadius;
     float dockRadius;
+    bool separateNotificationCorners;
+    float notificationTopRadius;
+    float notificationBottomRadius;
     bool useDeclaredCornerRadius;
     bool ignoreContentBlurRegion;
     bool roundMaximized;

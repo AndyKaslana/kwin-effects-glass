@@ -166,6 +166,17 @@ BlurEffect::BlurEffect()
         m_roundedOnscreenPass.rimWidthLocation = m_roundedOnscreenPass.shader->uniformLocation("rimWidth");
         m_roundedOnscreenPass.rimAdaptToRefractionLocation = m_roundedOnscreenPass.shader->uniformLocation("rimAdaptToRefraction");
         m_roundedOnscreenPass.rimAdaptMultiplierLocation = m_roundedOnscreenPass.shader->uniformLocation("rimAdaptMultiplier");
+        m_roundedOnscreenPass.cursorRimLocation = m_roundedOnscreenPass.shader->uniformLocation("cursorRim");
+        m_roundedOnscreenPass.cursorPosLocation = m_roundedOnscreenPass.shader->uniformLocation("cursorPos");
+        m_roundedOnscreenPass.cursorRimRadiusLocation = m_roundedOnscreenPass.shader->uniformLocation("cursorRimRadius");
+        m_roundedOnscreenPass.cursorRimStrengthLocation = m_roundedOnscreenPass.shader->uniformLocation("cursorRimStrength");
+        m_roundedOnscreenPass.cursorRimThicknessLocation = m_roundedOnscreenPass.shader->uniformLocation("cursorRimThickness");
+        m_roundedOnscreenPass.cornerExponentLocation = m_roundedOnscreenPass.shader->uniformLocation("cornerExponent");
+        m_roundedOnscreenPass.edgeAALocation = m_roundedOnscreenPass.shader->uniformLocation("edgeAA");
+        m_roundedOnscreenPass.widgetBorderLocation = m_roundedOnscreenPass.shader->uniformLocation("widgetBorder");
+        m_roundedOnscreenPass.widgetBorderStrengthLocation = m_roundedOnscreenPass.shader->uniformLocation("widgetBorderStrength");
+        m_roundedOnscreenPass.widgetHoverFadeLocation = m_roundedOnscreenPass.shader->uniformLocation("widgetHoverFade");
+        m_roundedOnscreenPass.uiScaleLocation = m_roundedOnscreenPass.shader->uniformLocation("uiScale");
     }
 
     m_downsamplePass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
@@ -203,6 +214,11 @@ BlurEffect::BlurEffect()
         m_noisePass.mvpMatrixLocation = m_noisePass.shader->uniformLocation("modelViewProjectionMatrix");
         m_noisePass.noiseTextureSizeLocation = m_noisePass.shader->uniformLocation("noiseTextureSize");
     }
+
+    m_clock.start();
+    m_cursorTimer = new QTimer(this);
+    m_cursorTimer->setInterval(8); // ~120 Hz poll; only repaints when the cursor actually moved
+    connect(m_cursorTimer, &QTimer::timeout, this, &BlurEffect::pollCursor);
 
     reconfigure(ReconfigureAll);
 
@@ -403,8 +419,90 @@ void BlurEffect::reconfigure(ReconfigureFlags flags)
         }
     }
 
+    if (m_cursorTimer) {
+        if (m_valid && (m_settings.general.cursorRim || m_settings.general.widgetBorder)) {
+            m_lastCursorPos = effects->cursorPos();
+            m_cursorTimer->start();
+        } else {
+            m_cursorTimer->stop();
+        }
+    }
+
     // Update all windows for the blur to take effect
     effects->addRepaintFull();
+}
+
+void BlurEffect::pollCursor()
+{
+    const QPointF pos = effects->cursorPos();
+    const qint64 now = m_clock.elapsed();
+    const bool moved = pos != m_lastCursorPos;
+    const QPointF old = m_lastCursorPos;
+    m_lastCursorPos = pos;
+
+    const bool widgetBorder = m_settings.general.widgetBorder;
+    const bool gaussianRim = m_settings.general.cursorRim;
+    if (!moved && !(widgetBorder && m_hoverFading)) {
+        return;
+    }
+    m_hoverFading = false;
+
+    // The Gaussian cursor light only shows on the border, so a cursor far inside a window changes
+    // nothing visible and those windows can be skipped.
+    const qreal reach = m_settings.general.cursorRimRadius * 2.0;
+    auto affects = [reach](const QRectF &r, const QPointF &p) {
+        if (!r.adjusted(-reach, -reach, reach, reach).contains(p)) {
+            return false; // too far outside
+        }
+        const bool deepInside = p.x() > r.left() + reach && p.x() < r.right() - reach
+            && p.y() > r.top() + reach && p.y() < r.bottom() - reach;
+        return !deepInside;
+    };
+
+    for (const auto &entry : m_windows) {
+        EffectWindow *w = entry.first;
+        if (!w || w->isDeleted()) {
+            continue;
+        }
+#ifdef GLASS_X11
+        QRectF frame = QRectF(blurRegion(w).boundingRect().translated(w->pos().toPoint()));
+#else
+        QRectF frame = QRectF(blurRegion(w).boundingRect()).translated(w->pos());
+#endif
+        if (frame.isEmpty()) {
+            frame = w->frameGeometry();
+        }
+
+        bool repaint = false;
+        if (gaussianRim && moved && (affects(frame, pos) || affects(frame, old))) {
+            repaint = true;
+        }
+
+        if (widgetBorder) {
+            // The border light spans the whole window, so every move inside it needs a repaint.
+            if (frame.contains(pos)) {
+                if (!m_hoverSince.contains(w)) {
+                    m_hoverSince.insert(w, now);
+                }
+                if (now - m_hoverSince.value(w) < 200) {
+                    m_hoverFading = true;
+                    repaint = true;
+                }
+                if (moved) {
+                    repaint = true;
+                }
+            } else if (m_hoverSince.contains(w)) {
+                m_hoverSince.remove(w);
+                repaint = true;
+            } else if (moved && frame.contains(old)) {
+                repaint = true;
+            }
+        }
+
+        if (repaint) {
+            w->addRepaintFull();
+        }
+    }
 }
 
 void BlurEffect::repaintDynamicCorners()
@@ -719,7 +817,10 @@ BorderRadius BlurEffect::effectiveWindowCornerRadius(EffectWindow *w, const Bord
 
     float topCornerRadius = 0.0;
     float bottomCornerRadius = 0.0;
-    if (w->isOnScreenDisplay() || w->isTooltip()) {
+    if (m_settings.roundedCorners.separateNotificationCorners && (w->isNotification() || w->isCriticalNotification())) {
+        topCornerRadius = m_settings.roundedCorners.notificationTopRadius;
+        bottomCornerRadius = m_settings.roundedCorners.notificationBottomRadius;
+    } else if (w->isOnScreenDisplay() || w->isTooltip()) {
         topCornerRadius = m_settings.roundedCorners.windowTopRadius;
         bottomCornerRadius = m_settings.roundedCorners.windowBottomRadius;
     } else if (w->isDock()) {
@@ -1088,6 +1189,24 @@ DrawWindowResult BlurEffect::drawWindow(const RenderTarget &renderTarget, const 
 {
     blur(renderTarget, viewport, w, mask, deviceRegion, data);
 
+    // glass repaint margin: while another effect scales or moves the window, the glass can
+    // reach past the area KWin repaints (the damage ends at the window's normal frame).
+    // Ask for a repaint of the transformed area plus a margin, so the next frame is covered
+    // and stale glass pixels get erased.
+    if (m_settings.general.fixTransformedWindows
+        && (data.xScale() != 1.0 || data.yScale() != 1.0 || data.xTranslation() != 0.0 || data.yTranslation() != 0.0)) {
+        const QRectF frame = w->frameGeometry();
+        const qreal margin = std::max(16.0, 0.12 * std::max(frame.width(), frame.height()));
+        const qreal x = frame.x() + data.xTranslation();
+        const qreal y = frame.y() + data.yTranslation();
+        const qreal width = frame.width() * data.xScale();
+        const qreal height = frame.height() * data.yScale();
+        effects->addRepaint(int(std::floor(x - margin)),
+                            int(std::floor(y - margin)),
+                            int(std::ceil(width + 2 * margin)),
+                            int(std::ceil(height + 2 * margin)));
+    }
+
     // Draw the window over the blurred area
     return effects->drawWindow(renderTarget, viewport, w, mask, deviceRegion, data);
 }
@@ -1144,6 +1263,33 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     auto transformShape = [&](BlurRegion shape) {
         shape.translate(w->pos().toPoint());
         if (data.xScale() != 1 || data.yScale() != 1) {
+            if (m_settings.general.fixTransformedWindows) {
+                // KWin scales a window around its own origin (the frame's top-left corner)
+                // and then applies the translation. Map every rectangle edge the same way,
+                // rounding outwards so that no band of the shape can collapse or leave gaps.
+                const QPointF origin = w->pos();
+                const qreal sx = data.xScale();
+                const qreal sy = data.yScale();
+                auto mapX = [&](qreal x) {
+                    return origin.x() + data.xTranslation() + (x - origin.x()) * sx;
+                };
+                auto mapY = [&](qreal y) {
+                    return origin.y() + data.yTranslation() + (y - origin.y()) * sy;
+                };
+                BlurRegion fixedShape;
+#ifdef GLASS_X11
+                for (const QRect &r : shape) {
+#else
+                for (const Rect &r : shape.rects()) {
+#endif
+                    const int left = int(std::floor(mapX(r.x())));
+                    const int top = int(std::floor(mapY(r.y())));
+                    const int right = std::max(left + 1, int(std::ceil(mapX(r.x() + r.width()))));
+                    const int bottom = std::max(top + 1, int(std::ceil(mapY(r.y() + r.height()))));
+                    fixedShape += QRect(left, top, right - left, bottom - top);
+                }
+                return fixedShape;
+            }
             QPoint pt = shape.boundingRect().topLeft();
             BlurRegion scaledShape;
 #ifdef GLASS_X11
@@ -1188,6 +1334,25 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         !contentShape.isEmpty();
     const bool splitRenderRegions = splitBlurSettings || splitTintSettings;
     const QRect backgroundRect = effectShape.boundingRect();
+
+    // With widget-style antialiasing, a region that is (nearly) a rounded rectangle is drawn as its full
+    // bounding box and shaped by the SDF mask. Regions made of staircase rectangles (Plasma's masks,
+    // roundedContentRegion) can't be smoothed by a mask that only applies inside the rectangles.
+    bool useRegionBox = false;
+    if (m_settings.general.edgeAA && !splitRenderRegions) {
+        qint64 regionArea = 0;
+#ifdef GLASS_X11
+        for (const QRect &r : effectShape) {
+            regionArea += static_cast<qint64>(r.width()) * r.height();
+        }
+#else
+        for (const Rect &r : effectShape.rects()) {
+            regionArea += static_cast<qint64>(r.width()) * r.height();
+        }
+#endif
+        const qint64 boundArea = static_cast<qint64>(backgroundRect.width()) * backgroundRect.height();
+        useRegionBox = boundArea > 0 && regionArea * 100 >= boundArea * 80;
+    }
 #ifdef GLASS_X11
     const QRect scaledBackgroundRect = snapToPixelGrid(scaledRect(backgroundRect, viewport.scale()));
     const QRect deviceBackgroundRect = scaledBackgroundRect;
@@ -1241,7 +1406,12 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
 #endif
     };
 
-    const auto effectiveEffectShape = buildEffectiveShape(effectShape);
+#ifdef GLASS_X11
+    const BlurRegion boundingShape = BlurRegion(backgroundRect);
+#else
+    const BlurRegion boundingShape = Region(Rect(backgroundRect));
+#endif
+    const auto effectiveEffectShape = buildEffectiveShape(useRegionBox ? boundingShape : effectShape);
     const auto effectiveContentShape = splitRenderRegions ? buildEffectiveShape(contentShape) : effectiveEffectShape;
     const auto effectiveFrameShape = splitRenderRegions ? buildEffectiveShape(frameShape) : decltype(effectiveEffectShape){};
 
@@ -1490,15 +1660,20 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         w->frameGeometry().height() * data.yScale(),
     };
 #ifdef GLASS_X11
-    const QRectF nativeBox = snapToPixelGridF(scaledRect(transformedRect, viewport.scale()))
-                                 .translated(-scaledBackgroundRect.topLeft());
+    const QRectF nativeBox = useRegionBox
+        ? QRectF(0.0, 0.0, scaledBackgroundRect.width(), scaledBackgroundRect.height())
+        : snapToPixelGridF(scaledRect(transformedRect, viewport.scale()))
+              .translated(-scaledBackgroundRect.topLeft());
 #else
-    const RectF nativeBox = RectF(transformedRect)
-                                .scaled(viewport.scale())
-                                .rounded()
-                                .translated(-scaledBackgroundRect.topLeft());
+    const RectF nativeBox = useRegionBox
+        ? RectF(QRectF(0.0, 0.0, scaledBackgroundRect.width(), scaledBackgroundRect.height()))
+        : RectF(RectF(transformedRect)
+                    .scaled(viewport.scale())
+                    .rounded()
+                    .translated(-scaledBackgroundRect.topLeft()));
 #endif
-    const BorderRadius nativeCornerRadius = cornerRadius.scaled(viewport.scale()).rounded();
+    const qreal cornerScale = m_settings.general.fixTransformedWindows ? 0.5 * (data.xScale() + data.yScale()) : 1.0;
+    const BorderRadius nativeCornerRadius = cornerRadius.scaled(viewport.scale() * cornerScale).rounded();
     const bool isRefractionExcluded =
         (m_settings.refraction.excludeDocks && w->isDock()) ||
         (m_settings.refraction.excludeTooltips && w->isTooltip()) ||
@@ -1544,6 +1719,41 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.rimWidthLocation, m_settings.general.rimWidth);
     m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.rimAdaptToRefractionLocation, m_settings.general.rimAdaptToRefraction ? 1 : 0);
     m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.rimAdaptMultiplierLocation, m_settings.general.rimAdaptMultiplier);
+
+    {
+        // The shader works in "position = uv * blurSize - blurSize / 2", where uv spans the blur region's
+        // bounding rect (backgroundRect) and is flipped vertically. Map the cursor through exactly that
+        // so the light sits under the pointer even when the blur region differs from the window frame.
+        const QPointF cursor = effects->cursorPos();
+        const float deviceScale = static_cast<float>(viewport.scale());
+        const float bgW = std::max(1.0, static_cast<double>(backgroundRect.width()));
+        const float bgH = std::max(1.0, static_cast<double>(backgroundRect.height()));
+        const float cu = static_cast<float>((cursor.x() - backgroundRect.x()) / bgW);
+        const float cv = 1.0f - static_cast<float>((cursor.y() - backgroundRect.y()) / bgH);
+        const QVector2D cursorLocal(cu * static_cast<float>(nativeBox.width()) - static_cast<float>(nativeBox.width()) * 0.5f,
+                                    cv * static_cast<float>(nativeBox.height()) - static_cast<float>(nativeBox.height()) * 0.5f);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.cursorRimLocation, m_settings.general.cursorRim ? 1 : 0);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.cursorPosLocation, cursorLocal);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.cursorRimRadiusLocation, m_settings.general.cursorRimRadius * deviceScale);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.cursorRimStrengthLocation, m_settings.general.cursorRimStrength);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.cursorRimThicknessLocation, m_settings.general.cursorRimThickness);
+        // 2.0 = circular corners; higher = squarer superellipse ("squircle") corners
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.cornerExponentLocation, m_settings.general.squircleCorners ? m_settings.general.squircleExponent : 2.0f);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.edgeAALocation, m_settings.general.edgeAA ? 1 : 0);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.widgetBorderLocation, m_settings.general.widgetBorder ? 1 : 0);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.widgetBorderStrengthLocation, m_settings.general.widgetBorderStrength);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.uiScaleLocation, deviceScale);
+
+        // Entry fade for the widget-style border light: 180 ms OutQuad, like the macOS widgets.
+        float hoverFade = 0.0f;
+        const bool hoverInside = cu >= 0.0f && cu <= 1.0f && cv >= 0.0f && cv <= 1.0f;
+        const qint64 hoverSince = m_hoverSince.value(w, -1);
+        if (hoverInside && hoverSince >= 0) {
+            const float t = std::clamp(static_cast<float>(m_clock.elapsed() - hoverSince) / 180.0f, 0.0f, 1.0f);
+            hoverFade = 1.0f - (1.0f - t) * (1.0f - t);
+        }
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.widgetHoverFadeLocation, hoverFade);
+    }
 
     QColor tint(m_settings.general.tintColor);
     QVector3D tintVec(tint.redF(), tint.greenF(), tint.blueF());

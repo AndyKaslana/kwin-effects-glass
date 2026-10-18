@@ -15,6 +15,8 @@
 #include "scene/item.h"
 #include "settings.h"
 
+#include <QElapsedTimer>
+#include <QHash>
 #include <QList>
 #include <QStringList>
 
@@ -155,6 +157,7 @@ private:
     bool shouldBlur(const EffectWindow *w, int mask, const WindowPaintData &data) const;
     void updateBlurRegion(EffectWindow *w);
     void repaintDynamicCorners();
+    void pollCursor();
     void blur(const RenderTarget &renderTarget, const RenderViewport &viewport, EffectWindow *w, int mask, const BlurRegion &deviceRegion, WindowPaintData &data);
     GLTexture *ensureNoiseTexture(int noiseStrength);
     QMatrix4x4 colorMatrix(const float &brightness, const float &saturation, const float &contrast) const;
@@ -204,7 +207,24 @@ private:
         int rimWidthLocation;
         int rimAdaptToRefractionLocation;
         int rimAdaptMultiplierLocation;
+        int cursorRimLocation;
+        int cursorPosLocation;
+        int cursorRimRadiusLocation;
+        int cursorRimStrengthLocation;
+        int cursorRimThicknessLocation;
+        int cornerExponentLocation;
+        int edgeAALocation;
+        int widgetBorderLocation;
+        int widgetBorderStrengthLocation;
+        int widgetHoverFadeLocation;
+        int uiScaleLocation;
     } m_roundedOnscreenPass;
+
+    QTimer *m_cursorTimer = nullptr;
+    QElapsedTimer m_clock;
+    QHash<EffectWindow *, qint64> m_hoverSince;
+    bool m_hoverFading = false;
+    QPointF m_lastCursorPos;
 
     struct
     {

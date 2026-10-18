@@ -9,6 +9,15 @@ uniform float rimSpecularScale;
 uniform float rimWidth;
 uniform int rimAdaptToRefraction;
 uniform float rimAdaptMultiplier;
+uniform int cursorRim;
+uniform vec2 cursorPos;          // relative to the window center, device px, +y up
+uniform float cursorRimRadius;   // device px
+uniform float cursorRimStrength; // 0..1 (brightness)
+uniform float cursorRimThickness; // edge falloff multiplier
+uniform int widgetBorder;
+uniform float widgetBorderStrength; // 0..1
+uniform float widgetHoverFade;      // 0..1, eased entry of the hover light
+uniform float uiScale;              // device pixels per logical pixel
 
 vec3 glassGlow(vec2 position, GlassFragment s)
 {
@@ -38,6 +47,42 @@ vec3 glowTintFromBackdrop(vec3 glow, vec3 backdrop)
     float added = max(c - glowChroma, 0.0);
     float lum = clamp(glowLab.x + added * (backLab.x - glowLab.x - 0.85), 0.0, 1.0);
     return linearToSrgb(clamp(oklabToLinear(vec3(lum, chroma)), 0.0, 1.0));
+}
+
+// Ported from the macOS widgets' liquidglass.frag (cornerSpec + edgeSpec).
+// The widget shader works in y-down pixels; p and ndirW below are converted to that space.
+vec3 widgetCornerSpec(vec2 p, float depthPx)
+{
+    float maxStroke = 3.0 * uiScale;
+    float feather = 2.0 * uiScale;
+    const float SECONDARY_INT = 0.65;
+
+    vec2 b = blurSize * 0.5;
+    vec2 restLight = vec2(-b.x, b.y) * 1.2;
+    vec2 cursorW = vec2(cursorPos.x, -cursorPos.y);
+    bool inside = abs(cursorPos.x) <= b.x && abs(cursorPos.y) <= b.y;
+    bool hovering = widgetHoverFade > 0.0 && inside;
+    vec2 lightPx = hovering ? mix(restLight, cursorW, widgetHoverFade) : restLight;
+    vec2 antiLight = -lightPx;
+
+    float taper = max(blurSize.x, blurSize.y) * 0.7;
+    float primaryAtt = exp(-distance(p, lightPx) / taper);
+    float secondaryAtt = exp(-distance(p, antiLight) / taper) * SECONDARY_INT;
+
+    float tPx = max(primaryAtt, secondaryAtt) * maxStroke;
+    float stroke = 1.0 - smoothstep(tPx - feather, tPx, depthPx);
+
+    float I = stroke * widgetBorderStrength * 0.55;
+    return vec3(1.0, 0.98, 0.94) * I;
+}
+
+vec3 widgetEdgeSpec(vec2 ndirW, float depthPx)
+{
+    float lip = 1.0 - smoothstep(0.0, 3.0 * uiScale, max(depthPx, 0.0));
+    vec2 lightDir = normalize(vec2(-0.45, 0.90));
+    float facing = 0.35 + 0.65 * clamp(dot(ndirW, lightDir) * 0.5 + 0.5, 0.0, 1.0);
+    float I = lip * facing * widgetBorderStrength * 0.10;
+    return vec3(1.0, 0.98, 0.94) * I;
 }
 
 vec3 glassOutline(vec2 position, GlassFragment s, vec3 untinted)
@@ -85,6 +130,36 @@ vec3 glassOutline(vec2 position, GlassFragment s, vec3 untinted)
 
         outline = mix(outline, specColor, clamp(thicknessShadow * shadowMask, 0.0, 1.0));
         outline = mix(outline, specColor, clamp(thicknessShadow * highlightMask, 0.0, 1.0));
+    }
+
+    if (cursorRim == 1 && cursorRimStrength > 0.0) {
+        vec3 lightColor = (glowStrength > 0.0 && dot(glowColor, glowColor) > 0.0)
+            ? mix(glowColor, vec3(1.0), 0.8)
+            : vec3(1.0);
+
+        float r = max(cursorRimRadius, 1.0);
+        vec2 toCursor = position - cursorPos;
+        float prox = exp(-3.0 * dot(toCursor, toCursor) / (r * r));
+        float core = exp(s.dist / (max(cursorRimThickness, 0.05) * width));
+        float mask = clamp(prox * core * cursorRimStrength, 0.0, 1.0);
+        outline = mix(outline, lightColor, mask);
+    }
+
+    if (widgetBorder == 1 && widgetBorderStrength > 0.0) {
+        float depthPx = -s.dist;
+        vec2 pW = vec2(position.x, -position.y);
+
+        // Outward normal of the shape from the SDF gradient (only needed inside the 3px lip)
+        vec2 ndirW = vec2(0.0);
+        if (depthPx < 3.0 * uiScale) {
+            vec2 e = vec2(0.75);
+            vec2 g = vec2(roundedRectangleDist(position + vec2(e.x, 0.0), halfSize, cornerRadius) - roundedRectangleDist(position - vec2(e.x, 0.0), halfSize, cornerRadius),
+                          roundedRectangleDist(position + vec2(0.0, e.y), halfSize, cornerRadius) - roundedRectangleDist(position - vec2(0.0, e.y), halfSize, cornerRadius));
+            vec2 nUp = length(g) > 1e-4 ? normalize(g) : vec2(0.0);
+            ndirW = vec2(nUp.x, -nUp.y);
+        }
+
+        outline += widgetEdgeSpec(ndirW, depthPx) + widgetCornerSpec(pW, depthPx);
     }
 
     return outline;

@@ -10,13 +10,37 @@ uniform float refractionNormalPow;
 uniform float refractionRGBFringing;
 uniform int physicallyBasedRefraction;
 
+uniform int edgeAA; // 1 = widget-style edge antialiasing
+uniform float cornerExponent; // 2.0 = circular corners, > 2.0 = superellipse ("squircle") corners
+
 float roundedRectangleDist(vec2 p, vec2 b, vec4 cornerRadius)
 {
     float r = p.x > 0.0
         ? (p.y > 0.0 ? cornerRadius.y : cornerRadius.w)
         : (p.y > 0.0 ? cornerRadius.x : cornerRadius.z);
+    if (cornerExponent > 2.001 && r > 0.0) {
+        // A superellipse corner of radius r cuts away much less of the box corner than a circle of the
+        // same r (n=4: 54%), so it reads as nearly square. Scale r so the diagonal cut matches the circle
+        // and the exponent only changes the character of the curve, like Apple's continuous corners.
+        float k = 0.2928932 / (1.0 - exp2(-1.0 / cornerExponent));
+        r = min(r * k, min(b.x, b.y));
+    }
+
     vec2 q = abs(p) - b + r;
-    return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r;
+    float inner = min(max(q.x, q.y), 0.0);
+    vec2 qc = max(q, 0.0);
+
+    if (cornerExponent <= 2.001 || r <= 0.0) {
+        return inner + length(qc) - r;
+    }
+
+    // Superellipse corner |x/r|^n + |y/r|^n = 1 (the same curve the macOS widgets use).
+    // First-order signed distance: (h - r) / |grad h| with h = (x^n + y^n)^(1/n).
+    float n = cornerExponent;
+    float h = pow(pow(qc.x, n) + pow(qc.y, n), 1.0 / n);
+    vec2 g = pow(qc, vec2(n - 1.0)) / max(pow(h, n - 1.0), 1e-6);
+    float gl = max(length(g), 1e-4);
+    return inner + (h - r) / (h > 1e-6 ? gl : 1.0);
 }
 
 struct GlassFragment {
@@ -102,11 +126,14 @@ vec4 glass(vec4 sum, vec4 cornerRadius)
     float minHalfSize = min(halfBlurSize.x, halfBlurSize.y);
 
     vec2 position = uv * blurSize - halfBlurSize.xy;
-    float dist = roundedRectangleDist(position, halfBlurSize, cornerRadius);
+    float distRaw = roundedRectangleDist(position, halfBlurSize, cornerRadius);
 
-    if (dist >= 0.0) {
+    // With edgeAA the glass is also shaded across a 1px outer feather so the mask can blend it out.
+    float feather = edgeAA == 1 ? 1.0 : 0.0;
+    if (distRaw >= feather) {
         return sum;
     }
+    float dist = min(distRaw, 0.0);
 
     float minEsp = clamp(edgeSizePixels, 0.1, minHalfSize * 0.9);
     float edgeFactor = 1.0 - clamp(abs(dist) / minEsp, 0.0, 1.0);
@@ -126,5 +153,8 @@ vec4 glass(vec4 sum, vec4 cornerRadius)
     vec3 untinted = rgb;
     s.color.rgb = mix(rgb, tintColor, adjustedTintStrength(tintStrength, rgb));
     vec3 final = glassOutline(position, s, untinted);
+    if (edgeAA == 1) {
+        return vec4(final, 1.0);
+    }
     return roundedRectangle(uv * blurSize, final, cornerRadius);
 }

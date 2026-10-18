@@ -29,6 +29,9 @@
         <entry name="ExcludeOSD" type="Bool">
             <default>false</default>
         </entry>
+        <entry name="FixTransformedWindows" type="Bool">
+            <default>true</default>
+        </entry>
         <entry name="TintColor" type="String">
             <default>#00000000</default>
         </entry>
@@ -67,6 +70,33 @@
         </entry>
         <entry name="RimAdaptMultiplier" type="Int">
             <default>2</default>
+        </entry>
+        <entry name="CursorRim" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="CursorRimStrength" type="Int">
+            <default>70</default>
+        </entry>
+        <entry name="CursorRimRadius" type="Int">
+            <default>60</default>
+        </entry>
+        <entry name="CursorRimThickness" type="Int">
+            <default>75</default>
+        </entry>
+        <entry name="SquircleCorners" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="SquircleExponent" type="Int">
+            <default>40</default>
+        </entry>
+        <entry name="EdgeAA" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="WidgetBorder" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="WidgetBorderStrength" type="Int">
+            <default>70</default>
         </entry>
         <entry name="BlurStrength" type="Int">
             <default>6</default>
@@ -121,6 +151,15 @@
         </entry>
         <entry name="DockCornerRadius" type="Double">
             <default>0.0</default>
+        </entry>
+        <entry name="SeparateNotificationCorners" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="NotificationTopCornerRadius" type="Double">
+            <default>20.0</default>
+        </entry>
+        <entry name="NotificationBottomCornerRadius" type="Double">
+            <default>20.0</default>
         </entry>
         <entry name="UseDeclaredCornerRadius" type="Bool">
             <default>false</default>

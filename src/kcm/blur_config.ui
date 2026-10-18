@@ -762,6 +762,16 @@
             </layout>
            </item>
            <item>
+            <widget class="QCheckBox" name="kcfg_FixTransformedWindows">
+             <property name="toolTip">
+              <string>Makes the glass follow windows that are scaled by other effects (for example Bouncing Popups). Turn this off if it causes problems.</string>
+             </property>
+             <property name="text">
+              <string>Improve glass on scaled/animated windows</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QWidget" name="widget" native="true">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
@@ -1853,6 +1863,421 @@
                 </item>
                </layout>
               </item>
+<item>
+               <layout class="QHBoxLayout" name="horizontalLayoutCursorRim">
+                <item>
+                 <widget class="QCheckBox" name="kcfg_CursorRim">
+                  <property name="text">
+                   <string>Cursor light</string>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerCursorRim">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelCursorRimStrengthThin">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Subtle</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="kcfg_CursorRimStrength">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Brightness of the rim highlight that follows the mouse cursor.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>0</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>1</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>5</number>
+                  </property>
+                  <property name="value">
+                   <number>70</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TickPosition::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelCursorRimStrengthWide">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Strong</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+<item>
+               <layout class="QHBoxLayout" name="horizontalLayoutCursorRimThickness">
+                <item>
+                 <widget class="QLabel" name="labelCursorRimThicknessTitle">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Thickness</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerCursorRimThickness">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelCursorRimThicknessLow">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Thin</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="kcfg_CursorRimThickness">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Brightness of the rim highlight that follows the mouse cursor.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>30</number>
+                  </property>
+                  <property name="maximum">
+                   <number>150</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>5</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>10</number>
+                  </property>
+                  <property name="value">
+                   <number>75</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TickPosition::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>20</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelCursorRimThicknessHigh">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Thick</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+<item>
+               <layout class="QHBoxLayout" name="horizontalLayoutCursorRimRadius">
+                <item>
+                 <widget class="QLabel" name="labelCursorRimRadiusTitle">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Radius</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerCursorRimRadius">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelCursorRimRadiusLow">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Short</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="kcfg_CursorRimRadius">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Brightness of the rim highlight that follows the mouse cursor.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>20</number>
+                  </property>
+                  <property name="maximum">
+                   <number>400</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>5</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>20</number>
+                  </property>
+                  <property name="value">
+                   <number>60</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TickPosition::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>60</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelCursorRimRadiusHigh">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Long</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+<item>
+               <layout class="QHBoxLayout" name="horizontalLayoutSquircleCorners">
+                <item>
+                 <widget class="QCheckBox" name="kcfg_SquircleCorners">
+                  <property name="text">
+                   <string>Squircle corners</string>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerSquircleCorners">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelSquircleExponentThin">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Rounder</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="kcfg_SquircleExponent">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Superellipse exponent of the corners: 2.0 is a circle, higher is squarer (macOS is around 4 to 5).</string>
+                  </property>
+                  <property name="minimum">
+                   <number>21</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>1</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>5</number>
+                  </property>
+                  <property name="value">
+                   <number>40</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TickPosition::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelSquircleExponentWide">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Squarer</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+<item>
+          <widget class="QCheckBox" name="kcfg_EdgeAA">
+           <property name="toolTip">
+            <string>Smooth 1px edge mask with a shaded outer feather, taken from the macOS widgets. Also removes jagged corners.</string>
+           </property>
+           <property name="text">
+            <string>Smooth edge antialiasing (widget style)</string>
+           </property>
+          </widget>
+         </item>
+<item>
+               <layout class="QHBoxLayout" name="horizontalLayoutWidgetBorder">
+                <item>
+                 <widget class="QCheckBox" name="kcfg_WidgetBorder">
+                  <property name="text">
+                   <string>Widget border light</string>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerWidgetBorder">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelWidgetBorderStrengthThin">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Subtle</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="kcfg_WidgetBorderStrength">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Border highlight ported from the macOS widgets: a stroke that tapers away from the cursor, plus a fainter opposite light. Works best with the Radius/Thickness cursor light turned off.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>0</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>1</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>5</number>
+                  </property>
+                  <property name="value">
+                   <number>70</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TickPosition::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelWidgetBorderStrengthWide">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Strong</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
              </layout>
             </widget>
            </item>
@@ -1992,6 +2417,52 @@
              </item>
              <item>
               <widget class="QDoubleSpinBox" name="kcfg_DockCornerRadius">
+               <property name="minimum">
+                <double>0.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+<item>
+            <widget class="QCheckBox" name="kcfg_SeparateNotificationCorners">
+             <property name="toolTip">
+              <string>Give notification popups their own top and bottom corner radius instead of the window radius.</string>
+             </property>
+             <property name="text">
+              <string>Separate notification corner radius</string>
+             </property>
+            </widget>
+           </item>
+<item>
+            <layout class="QHBoxLayout" name="layoutNotificationTopCornerRadius">
+             <item>
+              <widget class="QLabel" name="labelNotificationTopCornerRadius">
+               <property name="text">
+                <string>Notification top corner radius</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="kcfg_NotificationTopCornerRadius">
+               <property name="minimum">
+                <double>0.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+<item>
+            <layout class="QHBoxLayout" name="layoutNotificationBottomCornerRadius">
+             <item>
+              <widget class="QLabel" name="labelNotificationBottomCornerRadius">
+               <property name="text">
+                <string>Notification bottom corner radius</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="kcfg_NotificationBottomCornerRadius">
                <property name="minimum">
                 <double>0.000000000000000</double>
                </property>
@@ -2306,6 +2777,108 @@
    <sender>kcfg_RimSpecular</sender>
    <signal>toggled(bool)</signal>
    <receiver>labelRimSpecularScaleWide</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_CursorRimStrength</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCursorRimStrengthThin</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCursorRimStrengthWide</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_CursorRimThickness</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCursorRimThicknessTitle</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCursorRimThicknessLow</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCursorRimThicknessHigh</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_CursorRimRadius</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCursorRimRadiusTitle</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCursorRimRadiusLow</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_CursorRim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelCursorRimRadiusHigh</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_SquircleCorners</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelSquircleExponentThin</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_SquircleCorners</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_SquircleExponent</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_SquircleCorners</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelSquircleExponentWide</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_WidgetBorder</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelWidgetBorderStrengthThin</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_WidgetBorder</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_WidgetBorderStrength</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_WidgetBorder</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelWidgetBorderStrengthWide</receiver>
    <slot>setEnabled(bool)</slot>
   </connection>
   <connection>
