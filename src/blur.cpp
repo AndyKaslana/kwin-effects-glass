@@ -177,6 +177,10 @@ BlurEffect::BlurEffect()
         m_roundedOnscreenPass.widgetBorderStrengthLocation = m_roundedOnscreenPass.shader->uniformLocation("widgetBorderStrength");
         m_roundedOnscreenPass.widgetHoverFadeLocation = m_roundedOnscreenPass.shader->uniformLocation("widgetHoverFade");
         m_roundedOnscreenPass.uiScaleLocation = m_roundedOnscreenPass.shader->uniformLocation("uiScale");
+        m_roundedOnscreenPass.edgeShadingLocation = m_roundedOnscreenPass.shader->uniformLocation("edgeShading");
+        m_roundedOnscreenPass.edgeShadowStrengthLocation = m_roundedOnscreenPass.shader->uniformLocation("edgeShadowStrength");
+        m_roundedOnscreenPass.edgeShadowWidthLocation = m_roundedOnscreenPass.shader->uniformLocation("edgeShadowWidth");
+        m_roundedOnscreenPass.edgeSpecFocusLocation = m_roundedOnscreenPass.shader->uniformLocation("edgeSpecFocus");
     }
 
     m_downsamplePass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
@@ -1743,6 +1747,10 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.widgetBorderLocation, m_settings.general.widgetBorder ? 1 : 0);
         m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.widgetBorderStrengthLocation, m_settings.general.widgetBorderStrength);
         m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.uiScaleLocation, deviceScale);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.edgeShadingLocation, m_settings.general.edgeShading ? 1 : 0);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.edgeShadowStrengthLocation, m_settings.general.edgeShadowStrength);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.edgeShadowWidthLocation, m_settings.general.edgeShadowWidth);
+        m_roundedOnscreenPass.shader->setUniform(m_roundedOnscreenPass.edgeSpecFocusLocation, m_settings.general.edgeSpecFocus);
 
         // Entry fade for the widget-style border light: 180 ms OutQuad, like the macOS widgets.
         float hoverFade = 0.0f;

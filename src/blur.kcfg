@@ -98,6 +98,18 @@
         <entry name="WidgetBorderStrength" type="Int">
             <default>70</default>
         </entry>
+        <entry name="EdgeShading" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="EdgeShadowStrength" type="Int">
+            <default>60</default>
+        </entry>
+        <entry name="EdgeShadowWidth" type="Int">
+            <default>10</default>
+        </entry>
+        <entry name="EdgeSpecFocus" type="Int">
+            <default>100</default>
+        </entry>
         <entry name="BlurStrength" type="Int">
             <default>6</default>
         </entry>

@@ -2278,6 +2278,249 @@
                 </item>
                </layout>
               </item>
+<item>
+               <layout class="QHBoxLayout" name="horizontalLayoutEdgeShading">
+                <item>
+                 <widget class="QCheckBox" name="kcfg_EdgeShading">
+                  <property name="text">
+                   <string>iOS-style edge shading</string>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerEdgeShading">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelEdgeShadowStrengthThin">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Soft</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="kcfg_EdgeShadowStrength">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Dark line and soft shadow along the left and right edges, with the specular highlight moved to the top and bottom edges. The slider sets how dark the side shadow is.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>0</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>1</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>5</number>
+                  </property>
+                  <property name="value">
+                   <number>60</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TickPosition::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelEdgeShadowStrengthWide">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Deep</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+<item>
+               <layout class="QHBoxLayout" name="horizontalLayoutEdgeShadowWidth">
+                <item>
+                 <widget class="QLabel" name="labelEdgeShadowWidthTitle">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Shadow width</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerEdgeShadowWidth">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelEdgeShadowWidthLow">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Narrow</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="kcfg_EdgeShadowWidth">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Brightness of the rim highlight that follows the mouse cursor.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>3</number>
+                  </property>
+                  <property name="maximum">
+                   <number>40</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>1</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>5</number>
+                  </property>
+                  <property name="value">
+                   <number>10</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TickPosition::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelEdgeShadowWidthHigh">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Wide</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+<item>
+               <layout class="QHBoxLayout" name="horizontalLayoutEdgeSpecFocus">
+                <item>
+                 <widget class="QLabel" name="labelEdgeSpecFocusTitle">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Top/bottom focus</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerEdgeSpecFocus">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelEdgeSpecFocusLow">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Mixed</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="kcfg_EdgeSpecFocus">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Brightness of the rim highlight that follows the mouse cursor.</string>
+                  </property>
+                  <property name="minimum">
+                   <number>0</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>1</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>5</number>
+                  </property>
+                  <property name="value">
+                   <number>100</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="tickPosition">
+                   <enum>QSlider::TickPosition::TicksBelow</enum>
+                  </property>
+                  <property name="tickInterval">
+                   <number>10</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelEdgeSpecFocusHigh">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Top/bottom only</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
              </layout>
             </widget>
            </item>
@@ -2879,6 +3122,72 @@
    <sender>kcfg_WidgetBorder</sender>
    <signal>toggled(bool)</signal>
    <receiver>labelWidgetBorderStrengthWide</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelEdgeShadowStrengthThin</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_EdgeShadowStrength</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelEdgeShadowStrengthWide</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelEdgeShadowWidthTitle</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelEdgeShadowWidthLow</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_EdgeShadowWidth</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelEdgeShadowWidthHigh</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelEdgeSpecFocusTitle</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelEdgeSpecFocusLow</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>kcfg_EdgeSpecFocus</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>kcfg_EdgeShading</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>labelEdgeSpecFocusHigh</receiver>
    <slot>setEnabled(bool)</slot>
   </connection>
   <connection>

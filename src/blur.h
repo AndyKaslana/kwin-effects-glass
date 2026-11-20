@@ -218,6 +218,10 @@ private:
         int widgetBorderStrengthLocation;
         int widgetHoverFadeLocation;
         int uiScaleLocation;
+        int edgeShadingLocation;
+        int edgeShadowStrengthLocation;
+        int edgeShadowWidthLocation;
+        int edgeSpecFocusLocation;
     } m_roundedOnscreenPass;
 
     QTimer *m_cursorTimer = nullptr;

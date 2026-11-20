@@ -86,6 +86,10 @@ void BlurSettings::read()
     general.edgeAA = BlurConfig::edgeAA();
     general.widgetBorder = BlurConfig::widgetBorder();
     general.widgetBorderStrength = std::clamp(BlurConfig::widgetBorderStrength(), 0, 100) / 100.0f;
+    general.edgeShading = BlurConfig::edgeShading();
+    general.edgeShadowStrength = std::clamp(BlurConfig::edgeShadowStrength(), 0, 100) / 100.0f;
+    general.edgeShadowWidth = std::clamp(BlurConfig::edgeShadowWidth(), 3, 40) / 10.0f;
+    general.edgeSpecFocus = std::clamp(BlurConfig::edgeSpecFocus(), 0, 100) / 100.0f;
     general.edgeLighting = BlurConfig::edgeLighting();
     general.edgeLightingDock = BlurConfig::edgeLightingDock();
     general.edgeLightingTooltip = BlurConfig::edgeLightingTooltip();

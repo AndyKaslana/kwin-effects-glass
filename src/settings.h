@@ -53,6 +53,10 @@ struct GeneralSettings
     bool edgeAA;
     bool widgetBorder;
     float widgetBorderStrength;
+    bool edgeShading;
+    float edgeShadowStrength;
+    float edgeShadowWidth;
+    float edgeSpecFocus;
     bool edgeLighting;
     bool edgeLightingDock;
     bool edgeLightingTooltip;

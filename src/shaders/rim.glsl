@@ -18,6 +18,10 @@ uniform int widgetBorder;
 uniform float widgetBorderStrength; // 0..1
 uniform float widgetHoverFade;      // 0..1, eased entry of the hover light
 uniform float uiScale;              // device pixels per logical pixel
+uniform int edgeShading;            // iOS-style: side shadow + top/bottom specular
+uniform float edgeShadowStrength;   // 0..1
+uniform float edgeShadowWidth;      // multiplier on the shadow falloff
+uniform float edgeSpecFocus;        // 0 = original diagonal specular, 1 = top/bottom only
 
 vec3 glassGlow(vec2 position, GlassFragment s)
 {
@@ -85,6 +89,15 @@ vec3 widgetEdgeSpec(vec2 ndirW, float depthPx)
     return vec3(1.0, 0.98, 0.94) * I;
 }
 
+// Outward unit normal of the shape (y-up) from the SDF gradient.
+vec2 edgeNormal(vec2 position, vec2 halfSize)
+{
+    vec2 e = vec2(0.75);
+    vec2 g = vec2(roundedRectangleDist(position + vec2(e.x, 0.0), halfSize, cornerRadius) - roundedRectangleDist(position - vec2(e.x, 0.0), halfSize, cornerRadius),
+                  roundedRectangleDist(position + vec2(0.0, e.y), halfSize, cornerRadius) - roundedRectangleDist(position - vec2(0.0, e.y), halfSize, cornerRadius));
+    return length(g) > 1e-4 ? normalize(g) : vec2(0.0);
+}
+
 vec3 glassOutline(vec2 position, GlassFragment s, vec3 untinted)
 {
     vec3 outline = s.color.rgb;
@@ -92,6 +105,23 @@ vec3 glassOutline(vec2 position, GlassFragment s, vec3 untinted)
     float bevelScale = physicallyBasedRefraction == 1 ? refractionBevelIntensity : 1.0;
     float edgeBand = max(clamp(edgeSizePixels, 0.1, min(halfSize.x, halfSize.y) * 0.9) * bevelScale * rimAdaptMultiplier, 0.1);
     float width = rimAdaptToRefraction == 1 ? edgeBand / 3.5 : rimWidth;
+
+    // iOS-style edge shading. nUp is only needed close to the border.
+    vec2 nUp = vec2(0.0);
+    if (edgeShading == 1 && -s.dist < 24.0 * uiScale) {
+        nUp = edgeNormal(position, halfSize);
+    }
+
+    if (edgeShading == 1 && edgeShadowStrength > 0.0) {
+        // Thin dark line right at the border plus a soft falloff inwards, strongest on the left/right
+        // sides (|n.x| -> 1) and absent on the top/bottom (|n.x| -> 0).
+        float sideWeight = pow(clamp(abs(nUp.x), 0.0, 1.0), 2.0);
+        float depthPx = max(-s.dist, 0.0);
+        float line = exp(-depthPx / (0.9 * uiScale * edgeShadowWidth));
+        float soft = exp(-depthPx / (7.0 * uiScale * edgeShadowWidth));
+        float shade = clamp(0.75 * line + 0.35 * soft, 0.0, 1.0);
+        outline *= 1.0 - clamp(edgeShadowStrength * sideWeight * shade, 0.0, 0.95);
+    }
 
     if (rimGlow == 1 && glowStrength > 0.0) {
         vec2 edgeDist = halfSize - abs(position);
@@ -128,8 +158,17 @@ vec3 glassOutline(vec2 position, GlassFragment s, vec3 untinted)
         float highlightMask = smoothstep(-blurSize.y * 0.7, blurSize.y * 0.7, position.y) *
                               smoothstep(-blurSize.x * 0.7, blurSize.x * 0.7, position.x);
 
-        outline = mix(outline, specColor, clamp(thicknessShadow * shadowMask, 0.0, 1.0));
-        outline = mix(outline, specColor, clamp(thicknessShadow * highlightMask, 0.0, 1.0));
+        float specA = thicknessShadow * shadowMask;
+        float specB = thicknessShadow * highlightMask;
+        if (edgeShading == 1 && edgeSpecFocus > 0.0) {
+            // Only the top and bottom edges catch light; the bottom a little more, like iOS.
+            float vertical = smoothstep(0.30, 0.85, abs(nUp.y));
+            float bottomBoost = nUp.y < 0.0 ? 1.0 : 0.75;
+            specA = mix(specA, thicknessShadow * vertical * bottomBoost, edgeSpecFocus);
+            specB = mix(specB, 0.0, edgeSpecFocus);
+        }
+        outline = mix(outline, specColor, clamp(specA, 0.0, 1.0));
+        outline = mix(outline, specColor, clamp(specB, 0.0, 1.0));
     }
 
     if (cursorRim == 1 && cursorRimStrength > 0.0) {
@@ -152,11 +191,8 @@ vec3 glassOutline(vec2 position, GlassFragment s, vec3 untinted)
         // Outward normal of the shape from the SDF gradient (only needed inside the 3px lip)
         vec2 ndirW = vec2(0.0);
         if (depthPx < 3.0 * uiScale) {
-            vec2 e = vec2(0.75);
-            vec2 g = vec2(roundedRectangleDist(position + vec2(e.x, 0.0), halfSize, cornerRadius) - roundedRectangleDist(position - vec2(e.x, 0.0), halfSize, cornerRadius),
-                          roundedRectangleDist(position + vec2(0.0, e.y), halfSize, cornerRadius) - roundedRectangleDist(position - vec2(0.0, e.y), halfSize, cornerRadius));
-            vec2 nUp = length(g) > 1e-4 ? normalize(g) : vec2(0.0);
-            ndirW = vec2(nUp.x, -nUp.y);
+            vec2 nW = edgeShading == 1 ? nUp : edgeNormal(position, halfSize);
+            ndirW = vec2(nW.x, -nW.y);
         }
 
         outline += widgetEdgeSpec(ndirW, depthPx) + widgetCornerSpec(pW, depthPx);
